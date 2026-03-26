@@ -1,4 +1,4 @@
-# 444_GPS_Project
+# 444_MAP_Project
 
 make sure to have liveserver vscode extention installed the button to host should be on the bottom right of the page
 
