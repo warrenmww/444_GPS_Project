@@ -1,81 +1,259 @@
 <!DOCTYPE html>
-<html lang="en" data-theme = "light">
+<html lang="en" data-theme="light">
+
 <head>
     <title>my map</title>
     <meta charset="utf-8" />
     <viewport content="width=device-width, initial-scale=1.0">
-    <!--importing required libraries and stylesheets for maplibre-gl-->
-    <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
-    <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    <style>
-        body { margin: 0; padding: 0; }
-        #map { width: 100%; height: 100vh; } 
-        input[type = "search"]{
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 1;
-            width: 300px;
-            padding: 10px;
-            border-radius: 20px;
-            border: 1px solid #ccc;
-            box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
-            font-family: 'Poppins', sans-serif;
-        }
-        .menu-button {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            width: 30px;
-            border-radius: 30px;
-            padding: 20px;
-            background-color: white;
-            border: 1px solid #ccc;
-            cursor: pointer;
-        }
-        :root {
-            --grid-unit: 1rem;
-            --border-radius-base: 0.5rem;
-        }
-        [data-theme="light"] {
-            --color-bg: #ffffff;
-            --color-fg: #000000;
-        }
-        [data-theme="dark"] {
-            --color-bg: #000000;
-            --color-fg: #ffffff;
-        }
-        body {
-            background-color: var(--color-bg);
-            color: var(--color-fg);
-            font-family: 'Poppins', sans-serif;
-        }
-        
-    </style>
+        <!--importing required libraries and stylesheets for maplibre-gl-->
+        <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+        <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+            rel="stylesheet">
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            #map {
+                width: 100%;
+                height: 100vh;
+                top: 0;
+                z-index: -1;
+                position: fixed;
+            }
+
+            input[type="search"] {
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                z-index: 1000;
+                width: 300px;
+                padding: 10px;
+                border-radius: 20px;
+                border: 1px solid #ccc;
+                box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+                font-family: 'Poppins', sans-serif;
+            }
+
+            .menu-button {
+                position: absolute;
+                bottom: 20px;
+                left: 20px;
+                width: 30px;
+                border-radius: 30px;
+                padding: 20px;
+                border: 1px solid #ccc;
+                cursor: pointer;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            .autocomplete {
+                position: relative;
+                display: inline-block;
+
+            }
+
+            input {
+                position: relative;
+                border: 1px solid transparent;
+                padding: 10px;
+                font-size: 13px;
+                font-family: 'Poppins', sans-serif;
+                border-radius: 13px;
+                box-shadow: #ccc 1px 1px 5px;
+            }
+
+            input[type=text] {
+                background-color: #fdfcfc;
+                width: 100%;
+            }
+
+            input[type=submit] {
+                background-color: rgb(106, 109, 111);
+                color: #fff;
+            }
+
+            .autocomplete-items {
+                position: absolute;
+                border: 1px solid #d4d4d4;
+                border-bottom: none;
+                border-top: none;
+                border-radius: 13px;
+                z-index: 99;
+                top: 100%;
+                left: 0;
+                right: 0;
+                font-family: 'Poppins', sans-serif;
+                font-size: 12px;
+            }
+
+            .autocomplete-items div {
+                padding: 10px;
+                cursor: pointer;
+                position: relative;
+                border-bottom: 1px solid #d4d4d4;
+                border-radius: 13px;
+                left: 13px;
+            }
+
+            .autocomplete-items div:hover {
+                /*when hovering an item:*/
+                background-color: #e9e9e9;
+            }
+
+            .autocomplete-active {
+                /*when navigating through the items using the arrow keys:*/
+                background-color: DodgerBlue !important;
+            }
+
+            .vignette {
+                position: relative;
+                top: 0;
+                left: 0;
+                z-index: 1;
+                width: 100%;
+                height: 100%;
+                box-shadow: 0 0 200px rgba(0, 0, 0, 0.7) inset;
+            }
+        </style>
 </head>
+
 <body>
 
-<div id="map"></div>
-<input type = "search" class="maplibregl-ctrl-geocoder--input" placeholder = "Search" aria-label = "Search">
-<div class = "menu">
-    <button class = "menu-button" type = "button"> </button>
-</div>
-<button type="button" data-theme-toggle aria-label="dark theme">
-    Change to dark theme (or icon here)</button>
+    <div class="vignette">
+        <!--auto complete search bar, source: W3Schools-->
+        <form autocomplete="off" action="action_page.php" method="post">
+        <div class="autocomplete" style="width:300px;">
+            <input id="myInput" type="text" name="myCountry" placeholder="Where would you like to go?">
+        </div>
+        <input type="submit" img src="imgs/magnify-glass.png">
+        </form>
+         <!--map container-->
+        <div id="map"></div>
+    </div>
 
-<script>
-    //initialize map
-    const map = new maplibregl.Map({
-        style: './custom_style_bright_v0.3.json',
-        center: [-91.666, 44.055], //sets the center of the map
-        zoom: 9.5, //sets the zoom level of the map
-        container: 'map', //put map in the div
-        pitch: 20, //sets the pitch of the map
-    });
-    //add controls (from maplibre-gl)
-    map.addControl(new maplibregl.NavigationControl());
-</script>
+
+    <script>
+        //initialize map
+        const map = new maplibregl.Map({
+            style: './custom_style_bright_v0.3.json',
+            center: [-91.666, 44.055], //sets the center of the map
+            zoom: 9.5, //sets the zoom level of the map
+            container: 'map', //put map in the div
+            pitch: 20, //sets the pitch of the map
+        });
+        //add controls (from maplibre-gl)
+        map.addControl(new maplibregl.NavigationControl());
+
+        // list of suggestions for the autocomplete search bar
+        var countries = ["United States", "Canada", "Mexico", "Brazil", "Argentina", "United Kingdom", "France", "Germany", "Italy", "Spain", "Russia", "China", "India", "Japan", "Australia"];
+        var placesWinona = ["Winona, Minnesota", "Blooming Grounds Coffee House", "Acoustic Cafe", "IWC", "East Lake Apartments"]
+
+        function autocomplete(inp, arr) { /*source: W3Schools*/
+            /*the autocomplete function takes two arguments,
+            the text field element and an array of possible autocompleted values:*/
+            var currentFocus;
+            /*execute a function when someone writes in the text field:*/
+            inp.addEventListener("input", function (e) {
+                var a, b, i, val = this.value;
+                /*close any already open lists of autocompleted values*/
+                closeAllLists();
+                if (!val) { return false; }
+                currentFocus = -1;
+                /*create a DIV element that will contain the items (values):*/
+                a = document.createElement("DIV");
+                a.setAttribute("id", this.id + "autocomplete-list");
+                a.setAttribute("class", "autocomplete-items");
+                /*append the DIV element as a child of the autocomplete container:*/
+                this.parentNode.appendChild(a);
+                /*for each item in the array...*/
+                for (i = 0; i < arr.length; i++) {
+                    /*check if the item starts with the same letters as the text field value:*/
+                    if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                        /*create a DIV element for each matching element:*/
+                        b = document.createElement("DIV");
+                        /*make the matching letters bold:*/
+                        b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                        b.innerHTML += arr[i].substr(val.length);
+                        /*insert a input field that will hold the current array item's value:*/
+                        b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                        /*execute a function when someone clicks on the item value (DIV element):*/
+                        b.addEventListener("click", function (e) {
+                            /*insert the value for the autocomplete text field:*/
+                            inp.value = this.getElementsByTagName("input")[0].value;
+                            /*close the list of autocompleted values,
+                            (or any other open lists of autocompleted values:*/
+                            closeAllLists();
+                        });
+                        a.appendChild(b);
+                    }
+                }
+            });
+            /*execute a function presses a key on the keyboard:*/
+            inp.addEventListener("keydown", function (e) {
+                var x = document.getElementById(this.id + "autocomplete-list");
+                if (x) x = x.getElementsByTagName("div");
+                if (e.keyCode == 40) {
+                    /*If the arrow DOWN key is pressed,
+                    increase the currentFocus variable:*/
+                    currentFocus++;
+                    /*and and make the current item more visible:*/
+                    addActive(x);
+                } else if (e.keyCode == 38) { //up
+                    /*If the arrow UP key is pressed,
+                    decrease the currentFocus variable:*/
+                    currentFocus--;
+                    /*and and make the current item more visible:*/
+                    addActive(x);
+                } else if (e.keyCode == 13) {
+                    /*If the ENTER key is pressed, prevent the form from being submitted,*/
+                    e.preventDefault();
+                    if (currentFocus > -1) {
+                        /*and simulate a click on the "active" item:*/
+                        if (x) x[currentFocus].click();
+                    }
+                }
+            });
+            function addActive(x) {
+                /*a function to classify an item as "active":*/
+                if (!x) return false;
+                /*start by removing the "active" class on all items:*/
+                removeActive(x);
+                if (currentFocus >= x.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = (x.length - 1);
+                /*add class "autocomplete-active":*/
+                x[currentFocus].classList.add("autocomplete-active");
+            }
+            function removeActive(x) {
+                /*a function to remove the "active" class from all autocomplete items:*/
+                for (var i = 0; i < x.length; i++) {
+                    x[i].classList.remove("autocomplete-active");
+                }
+            }
+            function closeAllLists(elmnt) {
+                /*close all autocomplete lists in the document,
+                except the one passed as an argument:*/
+                var x = document.getElementsByClassName("autocomplete-items");
+                for (var i = 0; i < x.length; i++) {
+                    if (elmnt != x[i] && elmnt != inp) {
+                        x[i].parentNode.removeChild(x[i]);
+                    }
+                }
+            }
+            /*execute a function when someone clicks in the document:*/
+            document.addEventListener("click", function (e) {
+                closeAllLists(e.target);
+            });
+        }
+        autocomplete(document.getElementById("myInput"), countries);
+    </script>
 
 </body>
+
 </html>
