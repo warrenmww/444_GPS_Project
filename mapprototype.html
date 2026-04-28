@@ -220,7 +220,7 @@
 
             #guideBtn {
                 position: absolute;
-                top: 80px;
+                top: 20px;
                 right: 20px;
                 z-index: 1001;
                 background-color: rgb(106, 109, 111);
@@ -229,7 +229,7 @@
                 border-radius: 50%;
                 width: 40px;
                 height: 40px;
-                display: flex;
+                display: none;
                 align-items: center;
                 justify-content: center;
                 box-shadow: #ccc 1px 1px 5px;
@@ -265,7 +265,7 @@
                 padding-bottom: 16px;
                 border-bottom: 1px solid rgba(0, 0, 0, 0.1);
             }
-
+            
             .toggle-label {
                 display: flex;
                 justify-content: space-between;
@@ -378,6 +378,19 @@
                 transform: translateX(20px);
             }
 
+            #languages{
+                font-family: "Poppins", sans-serif;
+                text-align: center;
+                font-weight: 300;
+                color: rgb(106, 109, 111);
+                border-radius: 10px;
+                border: 1px solid #ccc;
+                right: 112px;
+                top: -28px;
+                max-width: auto;
+                position: relative;
+            }
+         
             .coordinates {
                 background: rgba(0, 0, 0, 0.5);
                 color: #fff;
@@ -393,8 +406,9 @@
             }
 
             .pics{
-                position: absolute;
+                position: relative;
                 top: 70%;
+                right: 50px;
                 z-index: 10;
             }
             .guide-container {
@@ -411,18 +425,17 @@
                 color: rgb(106, 109, 111);
                 border-radius: 10px;
                 border: 1px solid #ccc;
-                /* width: 100dvw; */
             }
 
             .custom-marker {
                 background-image: url('imgs/location-dot-solidblue.png');
                 background-size: cover;
                 color: transparent;
+                backdrop-filter: blur(12px);
                 width: 50px;
                 height: 50px;
                 border-radius: 50%;
                 cursor: pointer;
-                box-shadow: #ccc 1px 1px 5px;
             }
 
             .mySlides {
@@ -433,11 +446,11 @@
                 vertical-align: middle;
             }
 
-            /* Slideshow container */
+            /* Slideshow container, source: https://www.w3schools.com/howto/howto_js_slideshow.asp */
             .slideshow-container {
+                top: 90px;
                 max-width: 500px;
-                position: relative;
-                margin: 0;
+                position: absolute;
                 border-radius: 20px;
             }
 
@@ -541,7 +554,7 @@
             <input id="myInput" type="text" name="myCountry" placeholder="Where would you like to go?">
         </div>
         <div class="container">
-            <button type="submit">
+            <button type="submit" id="submit">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="8" />
@@ -602,6 +615,23 @@
                 <span class="toggle-slider2"></span>
             </div>
         </label>
+         <label class="toggle-label2">
+            <span>Language</span>
+            <div class="lang-options">
+               <div class="toggle-switch2">
+                <form action="/action_page.php">
+                    <select name="languages" id="languages">
+                        <option value="restaurant">English</option>
+                        <option value="traval">Mandarin</option>
+                        <option value="international">Spanish</option>
+                        <option value="international">Other languages*</option>
+                    </select>
+                    <br><br>
+            </div>
+            </div>
+        </label>
+        </form>
+
     </div>
 
 
@@ -622,13 +652,11 @@
             <h2 class="pics">Galleries</h2>
 
                     <div class="mySlides fade">
-                        <div class="numbertext">1 / 3</div>
                         <img src="imgs/WSU-Campus-Drone-Kryzsko-Commons.png" style="width:100%">
                         <div class="text">Caption Text</div>
                     </div>
 
                     <div class="mySlides fade">
-                        <div class="numbertext">2 / 3</div>
                         <img src="imgs/WSU-Winona-Campus.jpg" style="width:100%">
                         <div class="text">Caption Two</div>
                     </div>
@@ -930,9 +958,8 @@
         const marker = new maplibregl.Marker({
             element: elmnt,
             draggable: true,
-            trackUserLocation: true
         })
-            .setLngLat([-93.17402812622915, 44.84603995259562])
+            .setLngLat([-93.17402812622915, 44.84603995259562]) // set it at random coords for now
             .addTo(map);
 
         function onDragEnd() {
